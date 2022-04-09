@@ -22,6 +22,7 @@ namespace NewspaperSellerSimulation
             if (SimulationSystem.PATH.Length > 0)
             {
                 SimulationSystem system = new SimulationSystem();
+                system.ReadInput();
                 system.Simulate();
                 system.CalculatePerformanceMeasures();
                 if (SimulationSystem.PATH[SimulationSystem.PATH.Length - 5] == '1')
