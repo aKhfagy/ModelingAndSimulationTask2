@@ -43,7 +43,7 @@ namespace NewspaperSellerSimulation
                     string result = TestingManager.Test(system, Constants.FileNames.TestCase3);
                     MessageBox.Show(result);
                 }
-                Application.Run(new DataView(system));
+                //Application.Run(new DataView(system));
             }
         }
     }

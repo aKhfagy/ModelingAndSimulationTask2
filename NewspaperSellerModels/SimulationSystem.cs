@@ -113,13 +113,79 @@ namespace NewspaperSellerModels
         }
         public void CalculatePerformanceMeasures()
         {
-
+            foreach(SimulationCase simulationCase in this.SimulationTable)
+            {
+                PerformanceMeasures.TotalNetProfit += simulationCase.DailyNetProfit;
+                PerformanceMeasures.TotalSalesProfit += simulationCase.SalesProfit;
+                PerformanceMeasures.TotalLostProfit += simulationCase.LostProfit;
+                PerformanceMeasures.TotalScrapProfit += simulationCase.ScrapProfit;
+                PerformanceMeasures.TotalCost += simulationCase.DailyCost;
+                PerformanceMeasures.DaysWithMoreDemand += ((simulationCase.LostProfit > 0) ? 1 : 0);
+                PerformanceMeasures.DaysWithUnsoldPapers += ((simulationCase.ScrapProfit > 0) ? 1 : 0);
+            }
         }
-
         public void Simulate()
         {
-            // profit = sales_profit - cost - loss + salvage
             Random random = new Random();
+            decimal cost = this.NumOfNewspapers * this.PurchasePrice;
+            for(int i = 0; i < this.NumOfRecords; i++)
+            {
+                SimulationCase simulationCase = new SimulationCase();
+                simulationCase.DayNo = i + 1;
+                simulationCase.RandomNewsDayType = random.Next(1, 100);
+                foreach(DayTypeDistribution d in DayTypeDistributions)
+                {
+                    if(simulationCase.RandomNewsDayType >= d.MinRange && simulationCase.RandomNewsDayType <= d.MaxRange)
+                    {
+                        simulationCase.NewsDayType = d.DayType;
+                        break;
+                    }
+                }
+                simulationCase.RandomDemand = random.Next(1, 100);
+
+                int id = 0;
+                if (simulationCase.NewsDayType == Enums.DayType.Fair) id = 1;
+                else if (simulationCase.NewsDayType == Enums.DayType.Poor) id = 2;
+
+                foreach (DemandDistribution d in DemandDistributions)
+                {
+                    DayTypeDistribution distribution = d.DayTypeDistributions[id];
+                    if(simulationCase.RandomDemand >= distribution.MinRange && simulationCase.RandomDemand <= distribution.MaxRange)
+                    {
+                        simulationCase.Demand = d.Demand;
+                        break;
+                    }
+                }
+
+                int numRemaining = this.NumOfNewspapers - simulationCase.Demand;
+                if(numRemaining == 0)
+                {
+                    simulationCase.SalesProfit = simulationCase.Demand * this.SellingPrice;
+                    simulationCase.LostProfit = 0;
+                    simulationCase.ScrapProfit = 0;
+                    simulationCase.DailyCost = cost;
+                }
+                else if(numRemaining > 0)
+                {
+                    simulationCase.SalesProfit = simulationCase.Demand * this.SellingPrice;
+                    simulationCase.LostProfit = 0;
+                    simulationCase.ScrapProfit = numRemaining * this.ScrapPrice;
+                    simulationCase.DailyCost = cost;
+                }
+                else
+                {
+                    numRemaining *= -1;
+                    simulationCase.SalesProfit = this.NumOfNewspapers * this.SellingPrice;
+                    simulationCase.LostProfit = numRemaining * (this.SellingPrice - this.PurchasePrice);
+                    simulationCase.ScrapProfit = 0;
+                    simulationCase.DailyCost = cost;
+                }
+
+
+                // profit = sales_profit - cost - loss + salvage
+                simulationCase.DailyNetProfit = simulationCase.SalesProfit - simulationCase.DailyCost - simulationCase.LostProfit + simulationCase.ScrapProfit;
+                this.SimulationTable.Add(simulationCase);
+            }
         }
     }
 }
