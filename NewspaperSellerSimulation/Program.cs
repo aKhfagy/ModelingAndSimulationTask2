@@ -22,7 +22,8 @@ namespace NewspaperSellerSimulation
             if (SimulationSystem.PATH.Length > 0)
             {
                 SimulationSystem system = new SimulationSystem();
-
+                system.Simulate();
+                system.CalculatePerformanceMeasures();
                 if (SimulationSystem.PATH[SimulationSystem.PATH.Length - 5] == '1')
                 {
                     MessageBox.Show("Test Case 1");

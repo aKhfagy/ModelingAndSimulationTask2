@@ -29,5 +29,15 @@ namespace NewspaperSellerModels
         ///////////// OUTPUTS /////////////
         public List<SimulationCase> SimulationTable { get; set; }
         public PerformanceMeasures PerformanceMeasures { get; set; }
+
+        public void CalculatePerformanceMeasures()
+        {
+
+        }
+
+        public void Simulate()
+        {
+            Random random = new Random();
+        }
     }
 }
